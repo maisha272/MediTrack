@@ -19,6 +19,8 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import android.os.Parcelable
 import android.os.Build
+import java.text.NumberFormat
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -202,7 +204,7 @@ class MainActivity : AppCompatActivity() {
             b.imgCar.imageTintList = ColorStateList.valueOf(Color.GRAY)
             b.tvTitle.text = getString(R.string.no_cars)
             b.ratingBar.rating = 0f
-            b.tvMeta.text = ""
+
             b.btnRent.isEnabled = false
             b.btnFav.isEnabled = false
             return
@@ -224,7 +226,7 @@ class MainActivity : AppCompatActivity() {
         b.ratingBar.rating = car.rating
         b.tvRating.text = getString(R.string.rating_number, car.rating)
 
-        b.tvMeta.text  = getString(R.string.meta_format, car.kilometers, car.costPerDay)
+
 
         // Accent
         val accent = ContextCompat.getColor(this, car.colorTheme)
@@ -235,6 +237,17 @@ class MainActivity : AppCompatActivity() {
         b.btnFav.imageTintList = ColorStateList.valueOf(accent)
         b.btnSort.imageTintList = ColorStateList.valueOf(accent)
         b.tvRating.setTextColor(accent)
+
+        // Pretty values
+        val kms = NumberFormat.getIntegerInstance().format(car.kilometers)
+        b.tvKmValue.text = kms
+        b.tvCostValue.text = car.costPerDay.toString()
+
+        // Accent the numbers + card strokes
+        b.tvKmValue.setTextColor(accent)
+        b.tvCostValue.setTextColor(accent)
+        b.cardKm.strokeColor = accent
+        b.cardCost.strokeColor = accent
 
         // Fav icon state
         val fav = Session.favourites.contains(car.model)

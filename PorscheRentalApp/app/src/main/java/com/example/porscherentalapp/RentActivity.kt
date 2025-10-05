@@ -8,6 +8,8 @@ import androidx.core.content.ContextCompat
 import com.example.porscherentalapp.databinding.ActivityRentBinding
 import com.google.android.material.snackbar.Snackbar
 import android.content.Intent
+import java.text.NumberFormat
+
 
 
 class RentActivity : AppCompatActivity() {
@@ -63,12 +65,21 @@ class RentActivity : AppCompatActivity() {
         b.ratingBarRent.rating = car.rating
         b.tvRatingRent.text = getString(R.string.rating_number, car.rating)
 
-        b.tvMetaRent.text = getString(R.string.meta_rent_format, car.kilometers, car.costPerDay, Session.balance)
+
 
         val accent = ContextCompat.getColor(this, car.colorTheme)
         b.tvTitleRent.setTextColor(accent)
         b.tvRatingRent.setTextColor(accent)
         b.btnSave.backgroundTintList = ColorStateList.valueOf(accent)
+
+        val kms = NumberFormat.getIntegerInstance().format(car.kilometers)
+        b.tvKmValueRent.text = kms
+        b.tvCostValueRent.text = car.costPerDay.toString()
+
+        b.tvKmValueRent.setTextColor(accent)
+        b.tvCostValueRent.setTextColor(accent)
+        b.cardKmRent.strokeColor = accent
+        b.cardCostRent.strokeColor = accent
 
         b.imgCarRent.apply {
             setImageResource(imageFor(car.model))
