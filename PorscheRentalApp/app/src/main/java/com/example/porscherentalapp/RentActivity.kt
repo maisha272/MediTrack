@@ -54,6 +54,13 @@ class RentActivity : AppCompatActivity() {
                 putExtra("booked_car", car)
                 putExtra("charged", total)
             }
+
+
+            // NEW: record the booking
+            Session.bookings.add(Booking(car = car, days = days, total = total))
+
+            setResult(RESULT_OK); finish()
+
             setResult(RESULT_OK, data)
             finish()
         }
@@ -102,6 +109,18 @@ class RentActivity : AppCompatActivity() {
 
     private fun updateTotal() {
         total = car.costPerDay * days
-        b.tvTotal.text = getString(R.string.total_format, total, days)
+        val after = Session.balance - total
+
+        // show total AND what your balance would be after booking
+        b.tvTotal.text = getString(R.string.total_with_after_format, total, days, after)
+
+        // keep the meta line fresh while sliding (so it doesn't look stale)
+        b.tvRatingRent.text = getString(
+            R.string.meta_rent_format,
+            car.kilometers,          // %,d formatting is inside the string
+            car.costPerDay,
+            Session.balance          // current balance before booking
+        )
     }
+
 }
