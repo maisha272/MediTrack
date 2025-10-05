@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.porscherentalapp.databinding.ActivityRentBinding
 import com.google.android.material.snackbar.Snackbar
+import android.content.Intent
+
 
 class RentActivity : AppCompatActivity() {
 
@@ -31,15 +33,29 @@ class RentActivity : AppCompatActivity() {
             days = v.toInt(); updateTotal()
         }
 
-        b.btnCancel.setOnClickListener { setResult(RESULT_CANCELED); finish() }
+        b.btnCancel.setOnClickListener {
+            setResult(RESULT_CANCELED, Intent().putExtra("cancel_car", car))
+            finish()
+        }
+
 
         b.btnSave.setOnClickListener {
             if (total > 400) { Snackbar.make(b.root, R.string.err_over_400, Snackbar.LENGTH_LONG).show(); return@setOnClickListener }
             if (Session.balance < total) { Snackbar.make(b.root, R.string.err_insufficient, Snackbar.LENGTH_LONG).show(); return@setOnClickListener }
+
+            // Apply booking here (as before)
             Session.balance -= total
             CarRepository.cars.removeIf { it.model.equals(modelKey, true) }
-            setResult(RESULT_OK); finish()
+
+            // Return data so MainActivity can UNDO
+            val data = Intent().apply {
+                putExtra("booked_car", car)
+                putExtra("charged", total)
+            }
+            setResult(RESULT_OK, data)
+            finish()
         }
+
     }
 
     private fun bind() {

@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.view.MenuInflater
 import android.widget.ImageView
 import android.widget.PopupMenu
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -15,6 +17,9 @@ import androidx.core.content.ContextCompat
 import com.example.porscherentalapp.databinding.ActivityMainBinding
 import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
+import android.os.Parcelable
+import android.os.Build
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,18 +32,54 @@ class MainActivity : AppCompatActivity() {
         private const val KEY_CURRENT_MODEL = "current_model"
         private const val KEY_SEARCH_QUERY  = "search_query"
     }
+    inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? =
+        if (Build.VERSION.SDK_INT >= 33) getParcelableExtra(key, T::class.java)
+        else @Suppress("DEPRECATION") getParcelableExtra(key)
 
 
-    private val rentLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        b.tvBalance.text = getString(R.string.balance_format, Session.balance)
-        rebuildDisplay(resetIndex = true)
-        when (result.resultCode) {
-            RESULT_OK -> snack(getString(R.string.msg_booked))
-            RESULT_CANCELED -> snack(getString(R.string.msg_cancelled))
+    private val rentLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            b.tvBalance.text = getString(R.string.balance_format, Session.balance)
+
+            when (result.resultCode) {
+                RESULT_OK -> {
+                    val bookedCar = result.data?.parcelable<Car>("booked_car")
+                    val charged   = result.data?.getIntExtra("charged", 0) ?: 0
+
+                    rebuildDisplay(resetIndex = true)
+
+                    Snackbar.make(b.root, getString(R.string.msg_booked), Snackbar.LENGTH_LONG)
+                        .setAction(R.string.undo) {
+                            bookedCar?.let { car ->
+                                Session.balance += charged
+                                if (CarRepository.cars.none { it.model.equals(car.model, true) }) {
+                                    CarRepository.cars.add(car)
+                                }
+                                b.tvBalance.text = getString(R.string.balance_format, Session.balance)
+                                rebuildDisplay(resetIndex = false)
+                                indexOfModel(shownCars, car.model).takeIf { it >= 0 }?.let {
+                                    current = it; bindCar()
+                                } ?: bindCar()
+                            }
+                        }
+                        .show()
+                }
+                RESULT_CANCELED -> {
+                    val cancelCar = result.data?.parcelable<Car>("cancel_car")
+                    Snackbar.make(b.root, getString(R.string.msg_cancelled), Snackbar.LENGTH_LONG)
+                        .setAction(R.string.undo) {
+                            cancelCar?.let { car ->
+                                val i = Intent(this@MainActivity, RentActivity::class.java)
+                                    .putExtra("car", car)
+                                    .putExtra("modelKey", car.model)
+                                rentLauncher.launch(i)
+                            }
+                        }
+                        .show()
+                }
+            }
         }
-    }
+
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
