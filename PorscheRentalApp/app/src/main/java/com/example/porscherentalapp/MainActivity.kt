@@ -23,6 +23,12 @@ class MainActivity : AppCompatActivity() {
     private var shownCars: List<Car> = CarRepository.cars
     private var current = 0
 
+    companion object {
+        private const val KEY_CURRENT_MODEL = "current_model"
+        private const val KEY_SEARCH_QUERY  = "search_query"
+    }
+
+
     private val rentLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -33,6 +39,13 @@ class MainActivity : AppCompatActivity() {
             RESULT_CANCELED -> snack(getString(R.string.msg_cancelled))
         }
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(KEY_CURRENT_MODEL, shownCars.getOrNull(current)?.model)
+        outState.putString(KEY_SEARCH_QUERY, b.searchView.query?.toString() ?: "")
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,8 +124,24 @@ class MainActivity : AppCompatActivity() {
             snack(if (nowFav) getString(R.string.msg_added_fav) else getString(R.string.msg_removed_fav))
         }
 
-        // First draw
-        rebuildDisplay(resetIndex = true)
+        // First draw (preserve position across dark/light changes)
+        val restoredModel = savedInstanceState?.getString(KEY_CURRENT_MODEL)
+        val restoredQuery = savedInstanceState?.getString(KEY_SEARCH_QUERY).orEmpty()
+
+        if (savedInstanceState == null) {
+            // first launch
+            rebuildDisplay(resetIndex = true)
+        } else {
+            // recreate after theme change (or other config change)
+            b.searchView.setQuery(restoredQuery, false)
+            rebuildDisplay(query = restoredQuery, resetIndex = false)  // DO NOT reset index
+            restoredModel?.let {
+                val idx = indexOfModel(shownCars, it)
+                if (idx != -1) current = idx
+            }
+            bindCar()
+        }
+
     }
 
     private fun rebuildDisplay(query: String = "", resetIndex: Boolean = false) {
@@ -152,14 +181,19 @@ class MainActivity : AppCompatActivity() {
         // Texts
         b.tvTitle.text = getString(R.string.title_format, car.name, car.model, car.year)
         b.ratingBar.rating = car.rating
+        b.tvRating.text = getString(R.string.rating_number, car.rating)
+
         b.tvMeta.text  = getString(R.string.meta_format, car.kilometers, car.costPerDay)
 
         // Accent
         val accent = ContextCompat.getColor(this, car.colorTheme)
         b.tvTitle.setTextColor(accent)
+        b.btnPrev.imageTintList = ColorStateList.valueOf(accent)
+        b.btnNext.imageTintList = ColorStateList.valueOf(accent)
         b.btnRent.backgroundTintList = ColorStateList.valueOf(accent)
         b.btnFav.imageTintList = ColorStateList.valueOf(accent)
         b.btnSort.imageTintList = ColorStateList.valueOf(accent)
+        b.tvRating.setTextColor(accent)
 
         // Fav icon state
         val fav = Session.favourites.contains(car.model)
