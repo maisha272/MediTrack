@@ -20,6 +20,9 @@ import com.google.android.material.snackbar.Snackbar
 import android.os.Parcelable
 import android.os.Build
 import java.text.NumberFormat
+import android.util.Log
+
+
 
 
 
@@ -27,13 +30,17 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var b: ActivityMainBinding
 
+
     private var shownCars: List<Car> = CarRepository.cars
     private var current = 0
 
     companion object {
         private const val KEY_CURRENT_MODEL = "current_model"
         private const val KEY_SEARCH_QUERY  = "search_query"
+        private const val TAG = "MainActivity"
     }
+
+
     inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? =
         if (Build.VERSION.SDK_INT >= 33) getParcelableExtra(key, T::class.java)
         else @Suppress("DEPRECATION") getParcelableExtra(key)
@@ -82,6 +89,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    private val bookingsLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _: ActivityResult ->
+            // When returning from Bookings screen, refresh balance & car list
+            b.tvBalance.text = getString(R.string.balance_format, Session.balance)
+            rebuildDisplay(resetIndex = false)
+        }
+
+
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -92,13 +107,31 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.i(TAG, "onCreate()")
         b = ActivityMainBinding.inflate(layoutInflater)
         setContentView(b.root)
 
+        b.bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> true
+                R.id.nav_bookings -> {
+                    bookingsLauncher.launch(Intent(this, BookingsActivity::class.java))
+                    // Keep Home selected visually
+                    b.bottomNav.selectedItemId = R.id.nav_home
+                    true
+                }
+                else -> false
+            }
+        }
+
+
         b.tvBalance.text = getString(R.string.balance_format, Session.balance)
+        Log.d(TAG, "Balance label init (balance=${Session.balance})")
+
 
         // Dark mode
         b.switchDark.setOnCheckedChangeListener { _, checked ->
+            Log.i(TAG, "Theme toggled (dark=$checked)")
             AppCompatDelegate.setDefaultNightMode(
                 if (checked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
             )
@@ -115,9 +148,11 @@ class MainActivity : AppCompatActivity() {
 
         // Sort menu
         b.btnSort.setOnClickListener { v ->
+            Log.d(TAG, "Sort menu opened")
             val pm = PopupMenu(this, v)
             MenuInflater(this).inflate(R.menu.menu_sort, pm.menu)
             pm.setOnMenuItemClickListener { item ->
+                Log.i(TAG, "Sort selected (title=${item.title})")
                 shownCars = when (item.itemId) {
                     R.id.sort_rating -> shownCars.sortedByDescending { c -> c.rating }
                     R.id.sort_year   -> shownCars.sortedByDescending { c -> c.year }
@@ -135,12 +170,14 @@ class MainActivity : AppCompatActivity() {
         b.btnNext.setOnClickListener {
             if (shownCars.isNotEmpty()) {
                 current = (current + 1) % shownCars.size
+                Log.d(TAG, "Next pressed (index=$current, model=${shownCars[current].model})")
                 bindCar()
             }
         }
         b.btnPrev.setOnClickListener {
             if (shownCars.isNotEmpty()) {
                 current = if (current - 1 < 0) shownCars.lastIndex else current - 1
+                Log.d(TAG, "Prev pressed (index=$current, model=${shownCars[current].model})")
                 bindCar()
             }
         }
@@ -196,6 +233,13 @@ class MainActivity : AppCompatActivity() {
         bindCar()
         renderFavChips()
     }
+
+    // MainActivity.kt
+    override fun onResume() {
+        super.onResume()
+        b.tvBalance.text = getString(R.string.balance_format, Session.balance)
+    }
+
 
     private fun bindCar() {
         val car = shownCars.getOrNull(current)

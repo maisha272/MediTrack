@@ -1,3 +1,8 @@
 package com.example.porscherentalapp
 
-object Session { var balance = 500; val favourites = mutableSetOf<String>() }
+
+object Session {
+    var balance: Int = 500
+    val favourites = mutableSetOf<String>()
+    val bookings = mutableListOf<Booking>()
+}

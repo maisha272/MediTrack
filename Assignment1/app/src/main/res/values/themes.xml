@@ -1,6 +1,6 @@
 <resources>
     <style name="Theme.Assignment1" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- your palette (must exist in colors.xml) -->
+
         <item name="colorPrimary">@color/primary</item>
         <item name="colorSecondary">@color/secondary</item>
         <item name="colorSurface">@color/surface</item>
@@ -12,7 +12,7 @@
         <item name="shapeAppearanceLargeComponent">@style/RoundedCorner24</item>
     </style>
 
-    <!-- NOTE: style name is RoundedCorner24 (no dot in the middle to avoid confusion) -->
+
     <style name="RoundedCorner24">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">24dp</item>

@@ -116,6 +116,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setAppLanguage(tag: String) {
         val appLocale = LocaleListCompat.forLanguageTags(tag)
+
+        Log.i(TAG, "Language switched to $tag")
+
         AppCompatDelegate.setApplicationLocales(appLocale)
         Snackbar.make(root, getString(R.string.lang_switched), Snackbar.LENGTH_SHORT).show()
     }
@@ -147,6 +150,7 @@ class MainActivity : AppCompatActivity() {
 
         if (elementsDone == TOTAL_ELEMENTS) {
             routineComplete = true
+            Log.i(TAG, "Routine complete (score=$score, elements=$elementsDone)")
             Toast.makeText(this, getString(R.string.msg_completed_toast), Toast.LENGTH_SHORT).show()
             if (score == MAX_SCORE) showCelebration()
         }
@@ -182,6 +186,7 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.reset)
             .setMessage(R.string.confirm_reset)
             .setPositiveButton(android.R.string.ok) { _, _ ->
+                Log.i(TAG, "Reset confirmed by user")
                 lastState = Triple(score, elementsDone, deductionTaken)
                 onReset()
                 Snackbar.make(root, R.string.reset_done, Snackbar.LENGTH_LONG)
@@ -263,6 +268,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun shareSummary() {
+        Log.i(TAG, "Share invoked (score=$score, elements=$elementsDone)")
         val msg = getString(R.string.share_text, score, elementsDone, TOTAL_ELEMENTS)
         val i = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
