@@ -11,6 +11,10 @@ class MedsViewModel(private val repository: MediRepository) : ViewModel() {
     val allMedications: LiveData<List<Medication>> = repository.allMedications
 
     fun deleteMedication(medication: Medication) = viewModelScope.launch {
-        // TODO: repository.deleteMedication(medication)
+        repository.deleteMedication(medication)
+    }
+
+    fun onEditMedication(medication: Medication) {
+        // TODO: Navigate to AddEditMedicationActivity with medication ID
     }
 }
