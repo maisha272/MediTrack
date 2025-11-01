@@ -13,7 +13,7 @@ import android.os.Build
 class MediTrackApplication : Application() {
 
     // flip this to false to run the WorkManager variant for your investigation
-    val useExactAlarms: Boolean = false
+    val useExactAlarms: Boolean = true
 
     lateinit var db: MedDatabase
     lateinit var scheduler: ReminderScheduler

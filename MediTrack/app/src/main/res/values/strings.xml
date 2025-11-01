@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">MediTrack</string>
+    <string name="med_medication">Add medication</string>
+    <string name="add_medication">Add medication</string>
+    <string name="med_name">Medication name</string>
+    <string name="dosage_hint">Dosage (e.g. 500 mg)</string>
+    <string name="form_hint">Form (pill, liquid…)</string>
+    <string name="notes_hint">Notes</string>
+    <string name="start_date">Start date</string>
+    <string name="end_date">End date</string>
+    <string name="indefinite_end">No end date</string>
+    <string name="repeat_daily">Daily</string>
+    <string name="repeat_every_n">Every n days</string>
+    <string name="repeat_days_of_week">Days of week</string>
+    <string name="every_n_days">Interval (days)</string>
+    <string name="times_per_day">Times per day</string>
+    <string name="add_time">Add time</string>
+    <string name="save">Save</string>
+    <string name="dow_mon">MON</string>
+    <string name="dow_tue">TUE</string>
+    <string name="dow_wed">WED</string>
+    <string name="dow_thu">THU</string>
+    <string name="dow_fri">FRI</string>
+    <string name="dow_sat">SAT</string>
+    <string name="dow_sun">SUN</string>
+    <string name="menu_calendar">Calendar</string>
+    <string name="menu_history">History</string>
+    <string name="history">History</string>
+    <string name="adherence_status">Adherence status</string>
+    <string name="calculating">Calculating...</string>
+    <string name="today">Today</string>
+    <string name="this_week">This week</string>
+    <string name="this_month">This month</string>
+    <string name="update">Update</string>
+
+
+    <string name="invalid_name">Enter a name</string>
+    <string name="invalid_time">Add at least one time</string>
+    <string name="invalid_every_n">Enter n ≥ 1</string>
+    <string name="invalid_dow">Select at least one day</string>
+
+</resources>

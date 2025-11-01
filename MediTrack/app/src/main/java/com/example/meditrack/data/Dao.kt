@@ -10,6 +10,9 @@ interface MedicationDao {
     @Upsert
     suspend fun upsert(med: Medication): Long
 
+    @Delete
+    suspend fun delete(med: Medication)
+
     @Query("SELECT * FROM Medication WHERE archived = 0 ORDER BY name")
     fun observeActive(): Flow<List<Medication>>
 
@@ -18,7 +21,20 @@ interface MedicationDao {
 
     @Query("UPDATE Medication SET archived = 1 WHERE id = :id")
     suspend fun archive(id: Long)
+
+    @Query("DELETE FROM Medication")
+    suspend fun deleteAll()
 }
+
+@Dao
+interface TriggerLogDao {
+    @Insert
+    suspend fun insert(log: TriggerLog)
+
+    @Query("SELECT * FROM TriggerLog ORDER BY id DESC LIMIT 200")
+    suspend fun recent(): List<TriggerLog>
+}
+
 
 @Dao
 interface DoseTimeDao {
@@ -89,8 +105,10 @@ interface DoseLogDao {
 
     @Query("SELECT * FROM DoseLog ORDER BY scheduledAt DESC")
     suspend fun allLogs(): List<DoseLog>
+
+    @Query("DELETE FROM DoseLog")
+    suspend fun deleteAll()
+
+    @Query("SELECT * FROM DoseLog WHERE medId = :medId")
+    suspend fun getLogsForMedication(medId: Long): List<DoseLog>
 }
-
-
-
-

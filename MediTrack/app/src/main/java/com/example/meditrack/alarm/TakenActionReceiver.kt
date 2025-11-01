@@ -1,5 +1,6 @@
 package com.example.meditrack.alarm
 
+import android.app.Application
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -10,40 +11,46 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 class TakenActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val medId = intent.getLongExtra("MED_ID", -1L)
-        val dueAtIso = intent.getStringExtra("DUE_AT") ?: return
+        val medId = intent.getLongExtra("MED_ID", -1)
+        val dueAtStr = intent.getStringExtra("DUE_AT") ?: return
         val notifId = intent.getIntExtra("NOTIF_ID", 0)
-        if (medId == -1L || notifId == 0) return
+        if (medId == -1L) return
 
-        // 1) Dismiss the shown notification
+        // 1) dismiss notif
         NotificationManagerCompat.from(context).cancel(notifId)
 
-        // 2) Mark as TAKEN in DB
-        val db = MedDatabase.get(context.applicationContext as android.app.Application)
+        val dueAt = LocalDateTime.parse(dueAtStr)
+
+        val pending = goAsync()
 
         CoroutineScope(Dispatchers.IO).launch {
-            val scheduledAt = LocalDateTime.parse(dueAtIso)
-            val takenAt = LocalDateTime.now(ZoneId.systemDefault())
+            val app = context.applicationContext as Application
+            val db = MedDatabase.get(app)
 
-            val updated = db.doseLogDao().updateMark(medId, scheduledAt, takenAt, "TAKEN")
+            // try to update existing MISSED row first
+            val updated = db.doseLogDao().updateMark(
+                medId = medId,
+                scheduledAt = dueAt,
+                takenAt = LocalDateTime.now(),
+                status = "TAKEN"
+            )
+
             if (updated == 0) {
+                // there was no MISSED row (maybe user pressed Taken very fast) → insert
                 db.doseLogDao().insert(
                     DoseLog(
                         medId = medId,
-                        scheduledAt = scheduledAt,
-                        takenAt = takenAt,
+                        scheduledAt = dueAt,
+                        takenAt = LocalDateTime.now(),
                         status = "TAKEN"
                     )
                 )
             }
 
-            // (Optional) Refresh future alarms for this med
-            DoseScheduler(context.applicationContext as android.app.Application, db)
-                .rescheduleForMedication(medId)
+            pending.finish()
         }
     }
 }

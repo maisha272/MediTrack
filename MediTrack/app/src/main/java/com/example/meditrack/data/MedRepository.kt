@@ -1,6 +1,6 @@
 package com.example.meditrack.data
 
-import com.example.meditrack.alarm.DoseScheduler
+import com.example.meditrack.alarm.ReminderScheduler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -16,7 +16,8 @@ data class MedWithNext(
 
 class MedRepository(
     private val db: MedDatabase,
-    private val scheduler: DoseScheduler
+//    private val scheduler: DoseScheduler
+    private val scheduler: ReminderScheduler
 ) {
     fun activeMedsFlow() = db.medicationDao().observeActive()
 
@@ -76,7 +77,9 @@ class MedRepository(
         val id = db.medicationDao().upsert(med)
         val doseTimes = times.map { t -> DoseTime(medId = id, timeOfDay = t) }
         db.doseTimeDao().replaceForMed(id, doseTimes)
+
         db.scheduleRuleDao().replaceForMed(rule.copy(medId = id))
+        // this now goes through whichever scheduler we chose
         scheduler.rescheduleForMedication(id)
         id
     }

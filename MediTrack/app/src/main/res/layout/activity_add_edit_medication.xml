@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fillViewport="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:title="@string/add_medication"
+            app:navigationIconTint="@color/white"
+            app:titleCentered="true" />
+
+        <!-- Name -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/med_name">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Dosage -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/dosage_hint">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtDosage"
+                android:layout_width="match_parent"
+                android:layout_height="50dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Form -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/form_hint">
+            <AutoCompleteTextView
+                android:id="@+id/edtForm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:focusable="false"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Notes -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/notes_hint">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minLines="2"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Dates -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="@string/start_date">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtStart"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Space android:layout_width="12dp" android:layout_height="1dp"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="@string/end_date">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtEnd"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <!-- Repeat Rule -->
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switchIndefinite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/indefinite_end" />
+
+        <RadioGroup
+            android:id="@+id/radioRepeatGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rbDaily"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/repeat_daily" />
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rbEveryN"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/repeat_every_n" />
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/rbDow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/repeat_days_of_week" />
+        </RadioGroup>
+
+        <!-- Every n days -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilEveryN"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/every_n_days">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtEveryN"
+                android:inputType="number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Days of week -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipsDow"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="false"
+            app:selectionRequired="false">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chMon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/dow_mon" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chTue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/dow_tue" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chWed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/dow_wed" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chThu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/dow_thu" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chFri"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/dow_fri" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chSat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/dow_sat" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chSun"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="@string/dow_sun" />
+        </com.google.android.material.chip.ChipGroup>
+
+
+        <!-- Times per day -->
+        <TextView
+            android:layout_marginTop="12dp"
+            android:text="@string/times_per_day"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipsTimes"
+            app:singleLine="false"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddTime"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_marginTop="8dp"
+            android:text="@string/add_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSave"
+            android:layout_marginTop="16dp"
+            android:text="@string/save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/btnArchive"
+            android:text="Archive"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/md_theme_error"
+            android:textColor="@android:color/white"
+            android:visibility="gone" />
+
+
+
+    </LinearLayout>
+</ScrollView>

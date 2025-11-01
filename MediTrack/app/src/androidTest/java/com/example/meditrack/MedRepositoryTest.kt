@@ -124,10 +124,7 @@ class MedRepositoryTest {
         }
     }
 
-    /**
-     * Test-only repository that is the same as your real MedRepository,
-     * except it takes our FakeScheduler instead of the real one.
-     */
+
     private class TestMedRepository(
         private val db: MedDatabase,
         private val scheduler: FakeScheduler
